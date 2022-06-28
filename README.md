@@ -1,4 +1,4 @@
-![Discord](https://img.shields.io/badge/Discord-Teamagers-%235865F2?logo=discord&logoColor=white?link=https://discord.gg/teamagers)
+![Discord](https://img.shields.io/badge/Discord-Teamagers-%235865F2?logo=discord&logoColor=white&link=https://discord.gg/teamagers)
 
 # 2magers Bot
 A discord bot written in Pycord for the Teamagers discord server. 
