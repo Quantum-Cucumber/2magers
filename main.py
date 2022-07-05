@@ -4,6 +4,9 @@ from os import listdir
 from config import GUILD_ID
 
 intents = discord.Intents.default()
+intents.presences = True
+intents.members = True
+
 bot = discord.Bot(command_prefix="++", case_insensitive=True, owner_id=349070664684142592, intents=intents,
                   debug_guilds=[GUILD_ID])
 

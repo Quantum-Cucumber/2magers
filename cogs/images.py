@@ -3,6 +3,7 @@ from discord.ext import commands
 from os import listdir
 from PIL import Image, ImageDraw, ImageFilter
 from io import BytesIO
+from utils import BOOL_OPTIONS
 
 FLAGS = []
 for file in listdir("flags/"):
@@ -19,11 +20,6 @@ SEPARATORS = {
     "diagonal /": ((PFP_SIZE, 0), (PFP_SIZE, PFP_SIZE), (0, PFP_SIZE)),
     "diagonal \\": ((0, 0), (PFP_SIZE, 0), (PFP_SIZE, PFP_SIZE)),
 }
-
-BOOL_OPTIONS = [
-    discord.OptionChoice("Yes", 1),
-    discord.OptionChoice("No", 0),
-]
 
 
 def circle_crop(image: Image):
