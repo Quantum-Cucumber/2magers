@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands
 import datetime as dt
 from utils import BOOL_OPTIONS, create_bar
-from config import SPOTIFY_EMOJI
+from config import SPOTIFY_EMOJI, BOOSTER_ROLE
 from math import floor
 
 # Maps to minutes
@@ -96,6 +96,44 @@ class General(commands.Cog):
         embed.description += f"\n\n{progress_bar} {progress_time}"
 
         await ctx.respond(embed=embed, view=SpotifyLink(spotify.track_url))
+
+    @discord.slash_command()
+    @discord.option("url", description="The link to a .png .jpg or .gif file. Must be less than 256KB in size")
+    async def boostbadge(self, ctx: discord.ApplicationContext, url: str):
+        """
+        Give yourself a custom icon next to your name!
+        """
+        # Prevent interaction from timing out
+        await ctx.defer()
+
+        async with self.bot.session.get(url) as response:
+            # Verify contents of file
+            if response.content_type not in ["image/jpeg", "image/png", "image/gif"]:
+                await ctx.respond("Invalid file type")
+                return
+            if response.content_length > 256000:  # Max 256KB
+                await ctx.respond("Max image size is 256KB")
+                return
+
+            # Get file
+            image = await response.read()
+
+            # Create role
+            booster_role = ctx.guild.get_role(BOOSTER_ROLE)
+            new_role = await ctx.guild.create_role(name="Boost Badge")
+            await new_role.edit(position=booster_role.position + 1, icon=image)
+
+            # Remove current boost badge, if one exists
+            roles = ctx.user.roles
+            badge_role = discord.utils.find(lambda role: role.name == "Boost Badge", roles)
+
+            if badge_role:
+                await badge_role.delete()
+
+            # Assign role to user
+            await ctx.user.add_roles(new_role)
+
+            await ctx.respond("Created!")
 
 
 def setup(bot: discord.Bot):
