@@ -1,11 +1,12 @@
 import discord
+from discord.ext import commands
 from dotenv import dotenv_values
 from os import listdir
 from config import GUILD_ID
 import aiohttp
 
 
-class Bot(discord.Bot):
+class Bot(commands.Bot):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
@@ -16,8 +17,8 @@ class Bot(discord.Bot):
 
 
 intents = discord.Intents.default()
-intents.presences = True
 intents.members = True
+intents.message_content = True
 
 bot = Bot(command_prefix="++", case_insensitive=True, owner_id=349070664684142592, intents=intents,
           debug_guilds=[GUILD_ID])
