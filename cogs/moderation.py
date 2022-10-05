@@ -6,6 +6,8 @@ from utils import seconds_to_pretty
 EMBED_FIELD_LIMIT = 25
 COLOUR = 0xff0000
 
+TIER_EXPIRATION = dt.timedelta(days=90)  # 3 Months
+
 
 def mod_case_embed(ctx: discord.ApplicationContext, case: dict) -> discord.Embed:
     # TODO: Colour
@@ -22,6 +24,9 @@ def mod_case_embed(ctx: discord.ApplicationContext, case: dict) -> discord.Embed
 
     if case["duration"]:
         embed.add_field(name="Duration", value=seconds_to_pretty(case["duration"]))
+
+    if dt.datetime.utcnow() - case["timestamp"] > TIER_EXPIRATION:
+        embed.set_footer(text="Case Expired")
 
     embed.timestamp = case["timestamp"]
 

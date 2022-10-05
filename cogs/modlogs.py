@@ -1,10 +1,12 @@
 import discord
 from db import db
-from cogs.moderation import mod_case_embed, can_moderate_user
+from cogs.moderation import mod_case_embed, can_moderate_user, TIER_EXPIRATION
 from utils import seconds_to_pretty
+import datetime as dt
 
 EMBED_FIELD_LIMIT = 25
 COLOUR = 0xff0000
+
 
 LOG_TYPE_PRETTY = {
     "timeout": "mute",
@@ -39,11 +41,17 @@ class Modlogs(discord.Cog):
         if case_count > 0:
             async for case in cases:
                 title = "Case #{} | {}".format(case["case"], LOG_TYPE_PRETTY[case["type"]].title())
+                description = ""
+
+                if case["type"] != "note":
+                    timestamp = case["timestamp"]
+                    if dt.datetime.utcnow() - timestamp >= TIER_EXPIRATION:
+                        description += "**--EXPIRED--**\n"
 
                 if case["type"] == "note":
-                    description = "**Note:** {}\n".format(case["reason"])
+                    description += "**Note:** {}\n".format(case["reason"])
                 else:
-                    description = "**Reason:** {}\n".format(case["reason"])
+                    description += "**Reason:** {}\n".format(case["reason"])
 
                 if case["duration"]:
                     description += "**Length:** {}\n".format(seconds_to_pretty(case["duration"]))
@@ -128,13 +136,18 @@ class Modlogs(discord.Cog):
         if case_count > 0:
             async for case in cases:
                 title = "Case #{} | {}".format(case["case"], LOG_TYPE_PRETTY[case["type"]].title())
+                description = ""
 
-                description = "**Reason:** {}\n".format(case["reason"])
+                timestamp = case["timestamp"]
+                if dt.datetime.utcnow() - timestamp >= TIER_EXPIRATION:
+                    description += "**--EXPIRED--**\n"
+
+                description += "**Reason:** {}\n".format(case["reason"])
 
                 if case["duration"]:
                     description += "**Length:** {}\n".format(seconds_to_pretty(case["duration"]))
 
-                description += "**Date:** {}\n".format(discord.utils.format_dt(case["timestamp"], "F"))
+                description += "**Date:** {}\n".format(discord.utils.format_dt(timestamp, "F"))
 
                 embed.add_field(name=title, value=description, inline=False)
 
