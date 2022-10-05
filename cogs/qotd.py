@@ -16,10 +16,10 @@ class QOTD(discord.Cog):
 
         self.sender.start()
 
-    qotd_group = discord.SlashCommandGroup(name="qotd", description="QOTD Management Commands")
+    qotd_group = discord.SlashCommandGroup(name="qotd", description="QOTD Management Commands",
+                                           default_member_permissions=discord.Permissions(manage_messages=True))
 
     @qotd_group.command()
-    @discord.default_permissions(manage_messages=True)
     async def add(self, ctx: discord.ApplicationContext, qotd: str,
                   credit: discord.Option(discord.Member, required=False,
                                          description="The user to give credit to for the question")
@@ -42,7 +42,6 @@ class QOTD(discord.Cog):
         await ctx.respond(embed=embed)
 
     @qotd_group.command()
-    @discord.default_permissions(manage_messages=True)
     async def list(self, ctx: discord.ApplicationContext):
         """Shows the queue of QOTDs"""
         await ctx.defer()
