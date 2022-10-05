@@ -1,5 +1,5 @@
 import discord
-from config import UNVERIFIED_ROLE, BOARD_UNVERIFIED_ROLE, NEW_MEMBER_ROLE, MEMBER_ROLE
+from config import UNVERIFIED_ROLE, BOARD_UNVERIFIED_ROLE, NEW_MEMBER_ROLE, MEMBER_ROLE, GUILD_ID
 from utils import seconds_to_pretty
 
 # IDs of users whose invitees will be considered to be board joiners
@@ -15,7 +15,7 @@ class Verification(discord.Cog):
         role = member.guild.get_role(UNVERIFIED_ROLE)
         await member.add_roles(role)
 
-    @discord.slash_command()
+    @discord.slash_command(guild_ids=[GUILD_ID])
     async def verify(self, ctx: discord.ApplicationContext):
         """Get access to the rest of Teamagers"""
         # Replace unverified role with new member role
@@ -29,7 +29,7 @@ class Verification(discord.Cog):
         embed = discord.Embed(description="Successfully verified - " + time_spent)
         await ctx.respond(embed=embed)
 
-    @discord.slash_command()
+    @discord.slash_command(guild_ids=[GUILD_ID])
     async def approve(self, ctx: discord.ApplicationContext, user: discord.Member):
         """Approve a board joiner"""
         # Replace board unverified role with new member role

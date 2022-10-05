@@ -3,6 +3,7 @@ from db import db
 from cogs.moderation import mod_case_embed, can_moderate_user, TIER_EXPIRATION
 from utils import seconds_to_pretty
 import datetime as dt
+from config import GUILD_ID
 
 EMBED_FIELD_LIMIT = 25
 COLOUR = 0xff0000
@@ -20,7 +21,7 @@ class Modlogs(discord.Cog):
     def __init__(self, bot: discord.Bot):
         self.bot = bot
 
-    @discord.slash_command()
+    @discord.slash_command(guild_ids=[GUILD_ID])
     @discord.default_permissions(kick_members=True)
     async def modlogs(self, ctx: discord.ApplicationContext, user: discord.Member):
         """Displays a user's modlogs"""
@@ -69,7 +70,7 @@ class Modlogs(discord.Cog):
 
         await ctx.respond(embed=embed)
 
-    @discord.slash_command()
+    @discord.slash_command(guild_ids=[GUILD_ID])
     @discord.default_permissions(kick_members=True)
     async def viewnotes(self, ctx: discord.ApplicationContext, user: discord.User):
         """View all mod notes associated with a user"""
@@ -159,7 +160,7 @@ class Modlogs(discord.Cog):
 
         await ctx.respond(embed=embed, ephemeral=True)
 
-    @discord.slash_command()
+    @discord.slash_command(guild_ids=[GUILD_ID])
     @discord.default_permissions(kick_members=True)
     async def getcase(self, ctx: discord.ApplicationContext, case_number: int):
         """
@@ -175,7 +176,7 @@ class Modlogs(discord.Cog):
         embed = mod_case_embed(ctx, case)
         await ctx.respond(embed=embed)
 
-    @discord.slash_command()
+    @discord.slash_command(guild_ids=[GUILD_ID])
     @discord.default_permissions(kick_members=True)
     async def removecase(self, ctx: discord.ApplicationContext, case_number: int):
         """Remove a modlog by its case number"""

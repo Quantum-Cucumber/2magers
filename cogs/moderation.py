@@ -2,6 +2,7 @@ import discord
 from db import db
 import datetime as dt
 from utils import seconds_to_pretty
+from config import GUILD_ID
 
 EMBED_FIELD_LIMIT = 25
 COLOUR = 0xff0000
@@ -94,7 +95,7 @@ class Moderation(discord.Cog):
     def __init__(self, bot: discord.Bot):
         self.bot = bot
 
-    @discord.slash_command()
+    @discord.slash_command(guild_ids=[GUILD_ID])
     @discord.default_permissions(kick_members=True)
     async def warn(self, ctx: discord.ApplicationContext, user: discord.Member, reason: str):
         """Warn a user"""
@@ -126,7 +127,7 @@ class Moderation(discord.Cog):
 
         await ctx.respond(embed=mod_embed)
 
-    @discord.slash_command()
+    @discord.slash_command(guild_ids=[GUILD_ID])
     @discord.default_permissions(kick_members=True)
     async def addnote(self, ctx: discord.ApplicationContext, user: discord.Member, note: str):
         """Warn a user"""
@@ -136,7 +137,7 @@ class Moderation(discord.Cog):
         mod_embed = mod_case_embed(ctx, case)
         await ctx.respond(embed=mod_embed)
 
-    @discord.slash_command()
+    @discord.slash_command(guild_ids=[GUILD_ID])
     @discord.default_permissions(kick_members=True)
     @discord.option("units", description="The unit the duration is in", choices=[
         discord.OptionChoice(name="Minutes", value=60),
@@ -190,7 +191,7 @@ class Moderation(discord.Cog):
 
         await ctx.respond(embed=mod_embed)
 
-    @discord.slash_command()
+    @discord.slash_command(guild_ids=[GUILD_ID])
     @discord.default_permissions(kick_members=True)
     async def unmute(self, ctx: discord.ApplicationContext, user: discord.Member):
         """Unmute a user"""
@@ -210,7 +211,7 @@ class Moderation(discord.Cog):
 
         await ctx.respond(embed=embed)
 
-    @discord.slash_command()
+    @discord.slash_command(guild_ids=[GUILD_ID])
     @discord.default_permissions(kick_members=True)
     async def unban(self, ctx: discord.ApplicationContext, user_id: str):
         """Unban a user"""
@@ -240,7 +241,7 @@ class Moderation(discord.Cog):
 
         await ctx.respond(embed=embed)
 
-    @discord.slash_command()
+    @discord.slash_command(guild_ids=[GUILD_ID])
     @discord.default_permissions(manage_messages=True)
     async def purge(self, ctx: discord.ApplicationContext, number: int):
         """
@@ -256,7 +257,7 @@ class Moderation(discord.Cog):
         embed.timestamp = discord.utils.utcnow()
         await ctx.respond(embed=embed)
 
-    @discord.slash_command()
+    @discord.slash_command(guild_ids=[GUILD_ID])
     @discord.default_permissions(ban_members=True)
     @discord.option("delete_messages", required=False, choices=[
         discord.OptionChoice("1 Hour", 60 * 60),

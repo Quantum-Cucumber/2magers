@@ -2,7 +2,6 @@ import discord
 from discord.ext import commands
 from dotenv import dotenv_values
 from os import listdir
-from config import GUILD_ID
 import aiohttp
 
 
@@ -16,12 +15,9 @@ class Bot(commands.Bot):
             await super().start(token, reconnect=reconnect)
 
 
-intents = discord.Intents.default()
-intents.members = True
-intents.message_content = True
+intents = discord.Intents.all()
 
-bot = Bot(command_prefix="++", case_insensitive=True, owner_id=349070664684142592, intents=intents,
-          debug_guilds=[GUILD_ID])
+bot = Bot(command_prefix="++", case_insensitive=True, owner_id=349070664684142592, intents=intents)
 
 for cog in listdir("cogs/"):
     if cog.endswith(".py"):

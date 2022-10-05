@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands
 import datetime as dt
 from utils import BOOL_OPTIONS, create_bar
-from config import SPOTIFY_EMOJI, BOOSTER_ROLE
+from config import SPOTIFY_EMOJI, BOOSTER_ROLE, GUILD_ID
 from math import floor
 
 # Maps to minutes
@@ -40,7 +40,7 @@ class General(commands.Cog):
     def __init__(self, bot: discord.Bot):
         self.bot = bot
 
-    @discord.slash_command(guild_only=True)
+    @discord.slash_command(guild_ids=[GUILD_ID])
     @discord.option("unit", choices=DATE_SCALE.keys())
     async def selfmute(self, ctx: discord.ApplicationContext, time: discord.Option(int), unit: str):
         """Temporarily mute yourself"""
@@ -97,7 +97,7 @@ class General(commands.Cog):
 
         await ctx.respond(embed=embed, view=SpotifyLink(spotify.track_url))
 
-    @discord.slash_command()
+    @discord.slash_command(guild_ids=[GUILD_ID])
     @discord.option("url", description="The link to a .png .jpg or .gif file. Must be less than 256KB in size")
     async def boostbadge(self, ctx: discord.ApplicationContext, url: str):
         """

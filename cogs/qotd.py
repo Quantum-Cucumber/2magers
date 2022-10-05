@@ -2,7 +2,7 @@ import discord
 from discord.ext import tasks
 from db import db
 import datetime as dt
-from config import QOTD_ID
+from config import QOTD_ID, GUILD_ID
 
 COLOUR = 0x0ff00
 EMBED_DESCRIPTION_MAX = 4096
@@ -17,6 +17,7 @@ class QOTD(discord.Cog):
         self.sender.start()
 
     qotd_group = discord.SlashCommandGroup(name="qotd", description="QOTD Management Commands",
+                                           guild_ids=[GUILD_ID],
                                            default_member_permissions=discord.Permissions(manage_messages=True))
 
     @qotd_group.command()
