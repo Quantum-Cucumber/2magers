@@ -1,6 +1,7 @@
 import discord
 from db import db
-from cogs.moderation import mod_case_embed, can_moderate_user, seconds_to_pretty
+from cogs.moderation import mod_case_embed, can_moderate_user
+from utils import seconds_to_pretty
 
 EMBED_FIELD_LIMIT = 25
 COLOUR = 0xff0000
