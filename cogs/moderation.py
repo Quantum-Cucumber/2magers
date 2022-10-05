@@ -153,6 +153,10 @@ class Moderation(discord.Cog):
         duration *= units
         duration = dt.timedelta(seconds=duration)
 
+        if duration > dt.timedelta(days=28):
+            await ctx.respond("The max mute length is 28 days", ephemeral=True)
+            return
+
         await ctx.defer()
 
         # Timeout user
