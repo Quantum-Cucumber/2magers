@@ -29,6 +29,20 @@ class Verification(discord.Cog):
         embed = discord.Embed(description="Successfully verified - " + time_spent)
         await ctx.respond(embed=embed)
 
+    @discord.slash_command()
+    async def approve(self, ctx: discord.ApplicationContext, user: discord.Member):
+        """Approve a board joiner"""
+        # Replace board unverified role with new member role
+        role = ctx.guild.get_role(BOARD_UNVERIFIED_ROLE)
+        await user.remove_roles(role)
+
+        role = ctx.guild.get_role(NEW_MEMBER_ROLE)
+        await user.add_roles(role)
+
+        embed = discord.Embed(title="User Verified")
+        embed.set_footer(text=user.display_name, icon_url=user.display_avatar.url)
+        await ctx.respond(embed=embed)
+
 
 def setup(bot):
     bot.add_cog(Verification(bot))
