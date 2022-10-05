@@ -5,8 +5,10 @@ from PIL import Image, ImageDraw, ImageFilter
 from io import BytesIO
 from utils import BOOL_OPTIONS
 
+FLAG_DIR = "images/flags/"
+
 FLAGS = []
-for file in listdir("flags/"):
+for file in listdir(FLAG_DIR):
     if file.endswith(".png"):
         FLAGS.append(file[:-4])
 
@@ -66,11 +68,11 @@ class Images(commands.Cog):
         pfp = pfp.convert("RGBA")
 
         # Load and resize the flags
-        background = Image.open("flags/" + flag + ".png")
+        background = Image.open(FLAG_DIR + flag + ".png")
         background = background.resize((PFP_SIZE, PFP_SIZE))
 
         if flag_2:
-            overlay_flag = Image.open("flags/" + flag_2 + ".png")
+            overlay_flag = Image.open(FLAG_DIR + flag_2 + ".png")
             overlay_flag = overlay_flag.resize((PFP_SIZE, PFP_SIZE))
 
             # Produce mask
