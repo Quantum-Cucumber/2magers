@@ -2,7 +2,7 @@ import discord
 from discord.ext import tasks
 from db import db
 import datetime as dt
-from config import QOTD_ID, GUILD_ID
+from config import QOTD_ID, GUILD_ID, QOTD_ROLE
 
 COLOUR = 0x0ff00
 EMBED_DESCRIPTION_MAX = 4096
@@ -88,7 +88,7 @@ class QOTD(discord.Cog):
 
         embed.timestamp = discord.utils.utcnow()
 
-        await channel.send(embed=embed)
+        await channel.send(f"<@&{QOTD_ROLE}>", embed=embed)
 
 
 def setup(bot):
