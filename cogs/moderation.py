@@ -2,7 +2,7 @@ import discord
 from db import db
 import datetime as dt
 from utils import seconds_to_pretty
-from config import GUILD_ID
+from config import GUILD_ID, BAN_APPEAL_LINK
 
 EMBED_FIELD_LIMIT = 25
 COLOUR = 0xff0000
@@ -283,6 +283,10 @@ class Moderation(discord.Cog):
         # DM User
 
         user_embed = user_case_embed(ctx, case)
+        user_embed.add_field(name="Appeal",
+                             value=f"Complete [this form]({BAN_APPEAL_LINK}) if you wish to appeal your ban",
+                             inline=False)
+
         try:
             await user.send(embed=user_embed)
             can_dm = True
