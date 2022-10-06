@@ -135,6 +135,24 @@ class General(commands.Cog):
 
             await ctx.respond("Created!")
 
+    @discord.slash_command()
+    async def whois(self, ctx: discord.ApplicationContext, user: discord.Member):
+        """Show information about a user"""
+        embed = discord.Embed(colour=user.colour, description=user.mention)
+        embed.set_author(name=str(user), icon_url=user.avatar.url)
+        embed.set_thumbnail(url=user.display_avatar.url)
+
+        embed.add_field(name="Joined", value=discord.utils.format_dt(user.joined_at))
+        embed.add_field(name="Registered", value=discord.utils.format_dt(user.created_at))
+
+        # Skip the 1st role (@everyone) then reverse the order so the highest role is first. Weird syntax lol
+        roles = " ".join([role.mention for role in user.roles[:0:-1]])
+        embed.add_field(name=f"Roles [{len(user.roles) - 1}]", value=roles, inline=False)
+
+        embed.set_footer(text=f"User ID: {user.id}")
+
+        await ctx.respond(embed=embed)
+
 
 def setup(bot: discord.Bot):
     bot.add_cog(General(bot))
