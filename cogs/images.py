@@ -4,7 +4,7 @@ from os import listdir
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
 from io import BytesIO
 from utils import BOOL_OPTIONS
-from config import WELCOME_ID
+from config import WELCOME_ID, GUILD_ID
 
 FLAG_DIR = "images/flags/"
 
@@ -171,6 +171,9 @@ class Images(commands.Cog):
 
     @discord.Cog.listener()
     async def on_member_join(self, member: discord.Member):
+        if member.guild.id != GUILD_ID:
+            return
+
         pfp = BytesIO(await member.display_avatar.read())
 
         image = make_welcome_image(WELCOME_BG, pfp, "Welcome", member.display_name,
@@ -181,6 +184,9 @@ class Images(commands.Cog):
 
     @discord.Cog.listener()
     async def on_member_remove(self, member: discord.Member):
+        if member.guild.id != GUILD_ID:
+            return
+
         pfp = BytesIO(await member.display_avatar.read())
 
         image = make_welcome_image(LEAVE_BG, pfp, "Goodbye", member.display_name, f"We will miss you :(",

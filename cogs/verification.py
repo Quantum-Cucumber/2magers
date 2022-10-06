@@ -17,6 +17,11 @@ BOARD_INVITERS = [
 
 
 async def assign_member_role(member: discord.Member):
+    # The member object could be outdated depending on what method calls this, so verify the member exists
+    member = member.guild.get_member(member.id)
+    if not member:
+        return
+
     # The guild should be verified by anything that calls this
     new_member_role = member.guild.get_role(NEW_MEMBER_ROLE)
     member_role = member.guild.get_role(MEMBER_ROLE)
@@ -38,6 +43,9 @@ class Verification(discord.Cog):
 
     @discord.Cog.listener()
     async def on_member_join(self, member: discord.Member):
+        if member.guild.id != GUILD_ID:
+            return
+
         role = member.guild.get_role(UNVERIFIED_ROLE)
         await member.add_roles(role)
 
