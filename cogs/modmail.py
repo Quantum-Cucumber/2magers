@@ -76,9 +76,9 @@ class ModMail(discord.Cog):
     @discord.slash_command(guild_ids=[MODMAIL_GUILD_ID])
     async def reply(self, ctx: discord.ApplicationContext, message: str,
                     file: discord.Option(discord.Attachment, required=False)):
-        """Reply to the active ModMail"""
+        """Reply to the active mod mail"""
         if ctx.channel_id not in self.mail_cache:
-            await ctx.respond("This channel is not an active ModMail channel", ephemeral=True)
+            await ctx.respond("This channel is not an active mod mail channel", ephemeral=True)
             return
 
         user_id = self.mail_cache[ctx.channel_id]
@@ -89,7 +89,7 @@ class ModMail(discord.Cog):
         user = await self.get_or_fetch_user(user_id)
         if not user:
             embed = discord.Embed(colour=RED, title="User not found",
-                                  description=f"You may want to close this ModMail - {self.close.mention}")
+                                  description=f"You may want to close this mod mail - {self.close.mention}")
             await ctx.respond(embed=embed)
             return
 
@@ -125,9 +125,9 @@ class ModMail(discord.Cog):
 
     @discord.slash_command(guild_ids=[MODMAIL_GUILD_ID])
     async def close(self, ctx: discord.ApplicationContext):
-        """Close the active ModMail"""
+        """Close the active mod mail"""
         if ctx.channel_id not in self.mail_cache:
-            await ctx.respond("This channel is not an active ModMail channel", ephemeral=True)
+            await ctx.respond("This channel is not an active mod mail channel", ephemeral=True)
             return
 
         user_id = int(self.mail_cache[ctx.channel_id])
@@ -137,7 +137,7 @@ class ModMail(discord.Cog):
         # Inform user
         user = await self.get_or_fetch_user(user_id)
         if user:
-            user_embed = discord.Embed(colour=RED, title="Your ModMail has been closed")
+            user_embed = discord.Embed(colour=RED, title="Your mod mail has been closed")
 
             try:
                 await user.send(embed=user_embed)
@@ -149,7 +149,7 @@ class ModMail(discord.Cog):
         await db.modmails.delete_one({"channel": str(ctx.channel_id), "user": str(user_id)})
 
         # Inform mods
-        mod_embed = discord.Embed(colour=RED, title="ModMail Closed")
+        mod_embed = discord.Embed(colour=RED, title="Mod Mail Closed")
         await ctx.respond(embed=mod_embed)
 
         # Change channel name
@@ -161,13 +161,13 @@ class ModMailButton(discord.ui.View):
         super().__init__(timeout=None)
         self.cog = cog
 
-    @discord.ui.button(emoji="💬", label="Create ModMail", custom_id="start_modmail", style=discord.ButtonStyle.blurple)
+    @discord.ui.button(emoji="💬", label="Create Mod Mail", custom_id="start_modmail", style=discord.ButtonStyle.blurple)
     async def start_mail(self, _button: discord.Button, interaction: discord.Interaction):
         # Ensure no modmails currently exist
         existing_modmail = await db.modmails.find_one({"user": str(interaction.user.id)})
         if existing_modmail:
-            embed = discord.Embed(colour=YELLOW, title="You already have a ModMail open",
-                                  description="If you wish to create a new one, ask the mods to close the old ModMail")
+            embed = discord.Embed(colour=YELLOW, title="You already have a mod mail open",
+                                  description="If you wish to create a new one, ask the mods to close the old mod mail")
 
             try:
                 await interaction.user.send(embed=embed)
@@ -184,7 +184,7 @@ class ModMailButton(discord.ui.View):
         # noinspection PyUnresolvedReferences
         channel = await category.create_text_channel(f"mail-{mail_number}")
         # Notify mods
-        await channel.send("@here New ModMail created", allowed_mentions=discord.AllowedMentions(everyone=True))
+        await channel.send("@here New mod mail created", allowed_mentions=discord.AllowedMentions(everyone=True))
 
         # Create records
         await db.modmails.insert_one({
@@ -195,14 +195,14 @@ class ModMailButton(discord.ui.View):
 
         # Respond to user
         try:
-            embed = discord.Embed(colour=GREEN, title="ModMail Created",
+            embed = discord.Embed(colour=GREEN, title="Mod Mail Created",
                                   description="Send messages here to talk to the mod team")
             await interaction.user.send(embed=embed)
             await interaction.response.defer(invisible=True)
 
         except discord.Forbidden:
             await interaction.response.send_message(
-                "The ModMail has been setup, but I am unable to DM you to pass on messages. Please ensure DMs are "
+                "The mod mail has been setup, but I am unable to DM you to pass on messages. Please ensure DMs are "
                 "enabled for this server - https://support.discord.com/hc/en-us/articles/217916488",
                 ephemeral=True,
             )
