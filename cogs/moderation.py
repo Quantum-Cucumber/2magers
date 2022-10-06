@@ -83,7 +83,7 @@ async def insert_modlog(user: discord.Member, mod: discord.Member, log_type: str
         "type": log_type,
         "duration": duration,
         "reason": reason,
-        "timestamp": discord.utils.utcnow(),
+        "timestamp": dt.datetime.utcnow(),
     }
 
     await db.mod_logs.insert_one(data)
