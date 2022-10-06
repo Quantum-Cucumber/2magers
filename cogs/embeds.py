@@ -7,7 +7,7 @@ class Embed(discord.Cog):
     def __init__(self, bot: discord.Bot):
         self.bot = bot
 
-    @discord.slash_command(guild_ids=[585994345086451723])
+    @discord.slash_command()
     async def embed(self, ctx: discord.ApplicationContext,
                     channel: discord.Option(discord.TextChannel, required=False),
                     title: discord.Option(str, required=False),
