@@ -1,5 +1,5 @@
 import discord
-from db import db
+from db import db, use_counter
 import datetime as dt
 from utils import seconds_to_pretty
 from config import GUILD_ID, BAN_APPEAL_LINK
@@ -73,8 +73,7 @@ async def insert_modlog(user: discord.Member, mod: discord.Member, log_type: str
         duration = duration.total_seconds()
 
     # Get case number and increment it for the next modlog
-    counter = await db.counters.find_one_and_update({"_id": "mod_logs_case"}, {"$inc": {"value": 1}})
-    case_number = counter["value"]
+    case_number = await use_counter("mod_logs_case")
 
     data = {
         "case": case_number,
