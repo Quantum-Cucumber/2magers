@@ -5,6 +5,9 @@ from db import db, use_counter
 from typing import Optional
 
 
+MODMAIL_SENT_EMOJI = "📨"
+
+
 class ModMail(discord.Cog):
     def __init__(self, bot: discord.Bot):
         self.bot = bot
@@ -70,6 +73,8 @@ class ModMail(discord.Cog):
 
                 await channel.send(embed=embed if message.content else None,
                                    files=files if files else None)
+
+                await message.add_reaction(MODMAIL_SENT_EMOJI)
 
                 break
 
