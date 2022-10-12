@@ -18,7 +18,7 @@ class Bot(commands.Bot):
 intents = discord.Intents.all()
 allowed_mentions = discord.AllowedMentions(everyone=False)
 
-bot = Bot(command_prefix="++", case_insensitive=True, owner_id=349070664684142592, intents=intents,
+bot = Bot(command_prefix=("/", "?"), case_insensitive=True, owner_id=349070664684142592, intents=intents,
           allowed_mentions=allowed_mentions)
 
 for cog in listdir("cogs/"):

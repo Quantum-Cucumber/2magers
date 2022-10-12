@@ -4,7 +4,6 @@ from config import GUILD_ID, MODMAIL_GUILD_ID, MODMAIL_CATEGORY_ID, RED, YELLOW,
 from db import db, use_counter
 from typing import Optional
 
-
 MODMAIL_SENT_EMOJI = "📨"
 
 
@@ -168,7 +167,7 @@ class ModMailButton(discord.ui.View):
 
     @discord.ui.button(emoji="💬", label="Create Mod Mail", custom_id="start_modmail", style=discord.ButtonStyle.blurple)
     async def start_mail(self, _button: discord.Button, interaction: discord.Interaction):
-        # Ensure no modmails currently exist
+        # Ensure no mod mails currently exist
         existing_modmail = await db.modmails.find_one({"user": str(interaction.user.id)})
         if existing_modmail:
             embed = discord.Embed(colour=YELLOW, title="You already have a mod mail open",
@@ -181,6 +180,21 @@ class ModMailButton(discord.ui.View):
 
             return
 
+        await interaction.response.send_modal(PromptModal(self.cog))
+
+
+class PromptModal(discord.ui.Modal):
+    def __init__(self, cog: ModMail):
+        super().__init__(title="Create Mod Mail")
+
+        self.cog = cog
+
+        self.add_item(
+            discord.ui.InputText(label="Message", placeholder="The message to send to the mod team",
+                                 style=discord.InputTextStyle.long, required=False)
+        )
+
+    async def callback(self, interaction: discord.Interaction):
         # Get modmail data
         category = self.cog.bot.get_channel(MODMAIL_CATEGORY_ID)
         mail_number = await use_counter("modmail")
@@ -189,7 +203,12 @@ class ModMailButton(discord.ui.View):
         # noinspection PyUnresolvedReferences
         channel = await category.create_text_channel(f"mail-{mail_number}")
         # Notify mods
-        await channel.send("@here New mod mail created", allowed_mentions=discord.AllowedMentions(everyone=True))
+        embed = None
+        if self.children[0].value:
+            embed = discord.Embed(colour=PRIMARY, description=self.children[0].value)
+
+        await channel.send("@here New mod mail created", embed=embed,
+                           allowed_mentions=discord.AllowedMentions(everyone=True))
 
         # Create records
         await db.modmails.insert_one({
@@ -200,9 +219,17 @@ class ModMailButton(discord.ui.View):
 
         # Respond to user
         try:
-            embed = discord.Embed(colour=GREEN, title="Mod Mail Created",
-                                  description="Send messages here to talk to the mod team")
-            await interaction.user.send(embed=embed)
+            embeds = [
+                discord.Embed(colour=GREEN, title="Mod Mail Created",
+                              description="Send messages here to talk to the mod team")
+            ]
+
+            if self.children[0].value:
+                embeds.append(
+                    discord.Embed(colour=GREEN, description=self.children[0].value)
+                )
+
+            await interaction.user.send(embeds=embeds)
             await interaction.response.defer(invisible=True)
 
         except discord.Forbidden:
