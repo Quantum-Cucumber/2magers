@@ -284,8 +284,8 @@ class General(commands.Cog):
                 emoji = discord.utils.get(flag_emojis, name=flag.replace(" ", ""))
                 if emoji:
                     flags.append(str(emoji))
-                else:
-                    flags.append(f"[{flag.title()}]")
+            for entry in profile["customFlags"]:
+                flags.append(entry["name"])
 
             if flags:
                 embed.add_field(name="Flags", value=" ".join(flags))
