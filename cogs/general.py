@@ -285,7 +285,7 @@ class General(commands.Cog):
                 if emoji:
                     flags.append(str(emoji))
             for entry in profile["customFlags"]:
-                flags.append(entry["name"])
+                flags.append("[{}]".format(entry["name"]))
 
             if flags:
                 embed.add_field(name="Flags", value=" ".join(flags))
