@@ -74,7 +74,7 @@ class Modlogs(discord.Cog):
     @discord.default_permissions(kick_members=True)
     async def viewnotes(self, ctx: discord.ApplicationContext, user: discord.User):
         """View all mod notes associated with a user"""
-        await ctx.defer()
+        await ctx.defer(ephemeral=True)
 
         query = {
             "user": str(user.id),
