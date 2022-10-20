@@ -74,7 +74,7 @@ class Modlogs(discord.Cog):
     @discord.default_permissions(kick_members=True)
     async def viewnotes(self, ctx: discord.ApplicationContext, user: discord.User):
         """View all mod notes associated with a user"""
-        await ctx.defer(ephemeral=True)
+        await ctx.defer()
 
         query = {
             "user": str(user.id),
@@ -115,7 +115,7 @@ class Modlogs(discord.Cog):
     @discord.slash_command()
     async def mymodlogs(self, ctx: discord.ApplicationContext):
         """Display the tiers you have received"""
-        await ctx.defer()
+        await ctx.defer(ephemeral=True)
 
         query = {
             "user": str(ctx.author.id),
@@ -158,7 +158,7 @@ class Modlogs(discord.Cog):
         else:
             embed.description = "This user has no associated logs"
 
-        await ctx.respond(embed=embed, ephemeral=True)
+        await ctx.respond(embed=embed)
 
     @discord.slash_command(guild_ids=[GUILD_ID])
     @discord.default_permissions(kick_members=True)
