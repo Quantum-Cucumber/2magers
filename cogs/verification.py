@@ -34,6 +34,9 @@ class Verification(discord.Cog):
     def __init__(self, bot: discord.Bot):
         self.bot = bot
 
+        # invite_id: #uses
+        self.invite_cache = {}
+
         # Run once on startup. Loops are the best option at the moment
         self.member_role_restore.start()
 
@@ -46,7 +49,10 @@ class Verification(discord.Cog):
         if member.guild.id != GUILD_ID:
             return
 
-        role = member.guild.get_role(UNVERIFIED_ROLE)
+        if await self.is_board_joiner():
+            role = member.guild.get_role(BOARD_UNVERIFIED_ROLE)
+        else:
+            role = member.guild.get_role(UNVERIFIED_ROLE)
         await member.add_roles(role)
 
     @discord.slash_command(guild_ids=[GUILD_ID])
@@ -137,6 +143,38 @@ class Verification(discord.Cog):
         await self.member_role_timeout(member, timeout.total_seconds())
 
         await db.pending.delete_one({"_id": entry["_id"]})
+
+    async def get_invite_dict(self) -> dict:
+        guild = self.bot.get_guild(GUILD_ID)
+        invites = await guild.invites()
+
+        cache = {}
+        for invite in invites:
+            # Only need to track board inviters
+            if invite.inviter.id in BOARD_INVITERS:
+                cache.update({str(invite.id): invite.uses})
+
+        return cache
+
+    @discord.Cog.listener()
+    async def on_ready(self):
+        self.invite_cache = await self.get_invite_dict()
+
+    async def is_board_joiner(self) -> bool:
+        current_invites = await self.get_invite_dict()
+
+        try:
+            for invite, uses in current_invites.items():
+                if invite in current_invites:
+                    if uses == self.invite_cache[invite] + 1:
+                        return True
+                else:
+                    if uses == 1:
+                        return True
+
+            return False
+        finally:
+            self.invite_cache = current_invites
 
 
 def setup(bot):
