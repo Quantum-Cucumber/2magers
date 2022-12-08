@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands
 import datetime as dt
 from utils import BOOL_OPTIONS, create_bar
-from config import SPOTIFY_EMOJI, BOOSTER_ROLE, GUILD_ID, PRIMARY
+from config import SPOTIFY_EMOJI, BOOSTER_ROLE, GUILD_ID, PRIMARY, DEBATE_ROLE, DEBATE_BAN_ROLE
 from math import floor
 from db import db
 
@@ -296,6 +296,25 @@ class General(commands.Cog):
         embed.set_footer(text="pronouns.page")
 
         return embed
+
+    @discord.slash_command(guild_ids=[GUILD_ID])
+    async def debate(self, ctx: discord.ApplicationContext):
+        """Grant/remove your own access to the debate channel"""
+        ban_role = ctx.guild.get_role(DEBATE_BAN_ROLE)
+        if ban_role in ctx.author.roles:
+            await ctx.respond("Your access to the debate channel has been restricted by the moderators.")
+            return
+
+        role = ctx.guild.get_role(DEBATE_ROLE)
+
+        if role not in ctx.author.roles:
+            await ctx.author.add_roles(role)
+            await ctx.respond("You have been added to the debate channel\n\nPlease remember to abide by the rules and "
+                              "to remain civil when debating. If someone is being rude or discourteous, please let a "
+                              "mod know!")
+        else:
+            await ctx.author.remove_roles(role)
+            await ctx.respond("You now no longer have access to the debate channel.")
 
 
 def setup(bot: discord.Bot):
