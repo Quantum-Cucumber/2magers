@@ -1,4 +1,4 @@
-py-cord~=2.2.0
+py-cord~=2.3.2
 python-dotenv
 Pillow
 motor[srv]

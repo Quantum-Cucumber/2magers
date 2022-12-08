@@ -208,9 +208,8 @@ class General(commands.Cog):
 
         if not entry:
             if ctx.user.id == user.id:
-                # TODO: When slash group mention fixed:
-                #  embed = discord.Embed(colour=PRIMARY, description=self.set.mention)
-                await ctx.respond("You have not setup your pronouns.page profile")
+                embed = discord.Embed(colour=PRIMARY, description=self.set.mention)
+                await ctx.respond("You have not setup your pronouns.page profile", embed=embed)
             else:
                 await ctx.respond("That user has not setup their pronouns.page profile")
             return
