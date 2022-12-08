@@ -19,11 +19,8 @@ class Embed(discord.Cog):
         """Send an embed"""
         if not channel:
             channel = ctx.channel
-        if not title and not description:
-            await ctx.respond("Either a title or description must be specified", ephemeral=True)
-            return
 
-        embed = discord.Embed(title=title, description=description)
+        embed = discord.Embed(title=title, description=description.replace("\\n", "\n"))
         if colour:
             try:
                 # ctx is literally unused, so it doesn't matter
@@ -39,8 +36,12 @@ class Embed(discord.Cog):
         if timestamp:
             embed.timestamp = discord.utils.utcnow()
 
-        await channel.send(embed=embed)
-        await ctx.respond("Sent", ephemeral=True)
+        try:
+            await channel.send(embed=embed)
+        except discord.DiscordException as e:
+            await ctx.respond(f"Unable to send embed\n```{e}```", ephemeral=True)
+        else:
+            await ctx.respond("Sent", ephemeral=True)
 
 
 def setup(bot):
