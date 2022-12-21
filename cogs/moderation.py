@@ -2,12 +2,15 @@ import discord
 from db import db, use_counter
 import datetime as dt
 from utils import seconds_to_pretty
-from config import GUILD_ID, BAN_APPEAL_LINK
+from config import GUILD_ID, BAN_APPEAL_LINK, PING_PERM_ROLE
+from asyncio import sleep
 
 EMBED_FIELD_LIMIT = 25
 COLOUR = 0xff0000
 
 TIER_EXPIRATION = dt.timedelta(days=90)  # 3 Months
+
+PING_PERM_MINUTES = 5
 
 
 def mod_case_embed(ctx: discord.ApplicationContext, case: dict) -> discord.Embed:
@@ -313,6 +316,29 @@ class Moderation(discord.Cog):
             mod_embed.set_footer(text="Cannot DM User")
 
         await ctx.respond(embed=mod_embed)
+
+    @discord.slash_command(guild_ids=[GUILD_ID])
+    @discord.default_permissions(ban_members=True)
+    async def ping(self, ctx: discord.ApplicationContext):
+        """Give yourself permissions to ping other roles"""
+        role = ctx.guild.get_role(PING_PERM_ROLE)
+
+        try:
+            await ctx.user.add_roles(role)
+        except discord.Forbidden:
+            await ctx.respond("I cannot assign that role to you due to a permissions issue", ephemeral=True)
+        else:
+            await ctx.respond(f"You can now ping other roles for {PING_PERM_MINUTES} minutes")
+
+    @discord.Cog.listener()
+    async def on_member_update(self, old_member: discord.Member, new_member: discord.Member):
+        if new_member.guild.id != GUILD_ID:
+            return
+
+        role = new_member.guild.get_role(PING_PERM_ROLE)
+        if role not in old_member.roles and role in new_member.roles:
+            await sleep(PING_PERM_MINUTES * 60)  # 5 minutes
+            await new_member.remove_roles(role)
 
 
 def setup(bot):
