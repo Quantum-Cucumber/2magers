@@ -67,6 +67,24 @@ class Verification(discord.Cog):
                 await self.safe_schedule_member_timeout(new_member)
 
     @discord.slash_command(guild_ids=[GUILD_ID])
+    async def verify(self, ctx: discord.ApplicationContext):
+        """Get access to the rest of Teamagers"""
+        # Replace unverified role with new member role
+        role = ctx.guild.get_role(UNVERIFIED_ROLE)
+        await ctx.user.remove_roles(role)
+
+        role = ctx.guild.get_role(NEW_MEMBER_ROLE)
+        await ctx.user.add_roles(role)
+
+        time_spent = seconds_to_pretty((discord.utils.utcnow() - ctx.user.joined_at).total_seconds())
+        embed = discord.Embed(description="Successfully verified - " + time_spent)
+        await ctx.respond(embed=embed)
+
+        await self.send_welcome(ctx.user)
+
+        await self.safe_schedule_member_timeout(ctx.user)
+
+    @discord.slash_command(guild_ids=[GUILD_ID])
     async def approve(self, ctx: discord.ApplicationContext, user: discord.Member):
         """Approve a board joiner"""
         # Replace board unverified role with new member role
