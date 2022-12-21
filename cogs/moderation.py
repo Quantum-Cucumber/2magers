@@ -64,8 +64,8 @@ def user_case_embed(ctx: discord.ApplicationContext, case: dict) -> discord.Embe
 def can_moderate_user(ctx: discord.ApplicationContext, target_user: discord.Member):
     if target_user.bot or ctx.user.id == target_user.id:
         return False
-    if ctx.user.id == ctx.guild.owner_id:
-        return False
+    elif ctx.user.id == ctx.guild.owner_id:
+        return True
     # Sometimes target_user won't be a member
     elif type(target_user) == discord.Member and ctx.user.top_role <= target_user.top_role:
         return False
