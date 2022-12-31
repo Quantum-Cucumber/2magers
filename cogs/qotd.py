@@ -90,6 +90,22 @@ class QOTD(discord.Cog):
 
         await channel.send(f"<@&{QOTD_ROLE}>", embed=embed)
 
+    @qotd_group.command(guild_ids=[GUILD_ID])
+    async def force(self, ctx: discord.ApplicationContext):
+        """Force a QOTD to send"""
+        try:
+            await self.sender()
+        except discord.DiscordException as e:
+            await ctx.respond(f"QOTD failed with the following error:\n```{e}```\n<@{self.bot.owner_id}>")
+        else:
+            self.sender.restart()
+
+            next_iter = discord.utils.format_dt(self.sender.next_iteration, "F")
+            embed = discord.Embed(title="--Debug--",
+                                  description=f"Task running: {self.sender.is_running()}\n"
+                                              f"Task failed: {self.sender.failed}\nNext QOTD: {next_iter}")
+            await ctx.respond("Sent", embed=embed)
+
 
 def setup(bot):
     bot.add_cog(QOTD(bot))
