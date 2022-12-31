@@ -33,6 +33,9 @@ PRONOUNS_PAGE_BASE_OPINIONS = {
 PRONOUNS_PAGE_FLAG_SERVERS = [830277756058337341, 830294210371518474, 932944778801315880]
 
 
+RULE_14_URL = "https://cdn.discordapp.com/attachments/714694881871921162/1058633726042578986/rule14.png"
+
+
 def duration_to_str(duration: dt.timedelta):
     duration = floor(duration.total_seconds())
     minutes, seconds = divmod(duration, 60)
@@ -314,6 +317,13 @@ class General(commands.Cog):
         else:
             await ctx.author.remove_roles(role)
             await ctx.respond("You now no longer have access to the debate channel.")
+
+    @discord.slash_command(guild_ids=[GUILD_ID])
+    async def rule14(self, ctx: discord.ApplicationContext):
+        """Rule 14."""
+        embed = discord.Embed(colour=PRIMARY)
+        embed.set_image(url=RULE_14_URL)
+        await ctx.respond(embed=embed)
 
 
 def setup(bot: discord.Bot):
