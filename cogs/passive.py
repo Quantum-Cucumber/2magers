@@ -1,5 +1,9 @@
 import discord
-from config import SUGGESTIONS_ID, LIKE_EMOJI, DISLIKE_EMOJI, STAFF_LIST_MESSAGE, STAFF_ROLE, GUILD_ID
+from config import SUGGESTIONS_ID, LIKE_EMOJI, DISLIKE_EMOJI, STAFF_LIST_MESSAGE, STAFF_ROLE, GUILD_ID, \
+    BUMP_PING_ROLE, BUMP_ID
+from asyncio import sleep
+
+BUMP_BOT_ID = 302050872383242240
 
 
 class Passive(discord.Cog):
@@ -33,6 +37,12 @@ class Passive(discord.Cog):
                 embed.description = description
 
                 await message.edit(embed=embed)
+
+    @discord.Cog.listener()
+    async def on_message(self, message: discord.Message):
+        if message.author.id == BUMP_BOT_ID and message.interaction and message.interaction.name == "bump":
+            await sleep(2 * 60 * 60)
+            await self.bot.get_channel(BUMP_ID).send(f"<@&{BUMP_PING_ROLE}>")
 
 
 def setup(bot):
