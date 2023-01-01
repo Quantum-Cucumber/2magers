@@ -1,6 +1,6 @@
 import discord
 from discord.ext import tasks
-from config import UNVERIFIED_ROLE, BOARD_UNVERIFIED_ROLE, NEW_MEMBER_ROLE, MEMBER_ROLE, GUILD_ID, BUDDY_ROLE, MAIN_ID
+from config import UNVERIFIED_ROLE, BOARD_UNVERIFIED_ROLE, NEW_MEMBER_ROLE, MEMBER_ROLE, GUILD_ID, BUDDY_ROLE, MAIN_ID, SPECIAL_LOG_ID, GREEN
 from utils import seconds_to_pretty
 import asyncio
 from db import db
@@ -84,19 +84,34 @@ class Verification(discord.Cog):
 
         await self.safe_schedule_member_timeout(ctx.user)
 
-    @discord.slash_command(guild_ids=[GUILD_ID])
-    async def approve(self, ctx: discord.ApplicationContext, user: discord.Member):
-        """Approve a board joiner"""
+    @discord.message_command(name="Approve Board Joiner")
+    async def approve_board(self, ctx: discord.ApplicationContext, message: discord.Message):
+        user = message.author
+
         # Replace board unverified role with new member role
+
         role = ctx.guild.get_role(BOARD_UNVERIFIED_ROLE)
         await user.remove_roles(role)
 
         role = ctx.guild.get_role(NEW_MEMBER_ROLE)
         await user.add_roles(role)
 
-        embed = discord.Embed(title="User Verified")
+        # Log message
+        embed = discord.Embed(title="Board Joiner Approved", description=message.content, colour=GREEN)
+        embed.set_author(name=f"{user.name}", icon_url=user.avatar.url)
+        embed.add_field(name="User ID", value=f"{user.id}")
+        embed.add_field(name="Approved By", value=ctx.user.mention)
+        embed.timestamp = discord.utils.utcnow()
+
+        channel = message.guild.get_channel(SPECIAL_LOG_ID)
+        await channel.send(embed=embed)
+
+        # Purge all messages from that user
+        await message.channel.purge(check=lambda m: m.author.id == user.id)
+
+        embed = discord.Embed(title="User Verified", colour=GREEN)
         embed.set_footer(text=user.display_name, icon_url=user.display_avatar.url)
-        await ctx.respond(embed=embed)
+        await ctx.respond(embed=embed, delete_after=5)
 
         await self.send_welcome(user)
 
