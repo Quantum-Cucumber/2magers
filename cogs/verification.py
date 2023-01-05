@@ -107,7 +107,7 @@ class Verification(discord.Cog):
         await channel.send(embed=embed)
 
         # Purge all messages from that user
-        await message.channel.purge(check=lambda m: m.author.id == user.id)
+        await message.channel.purge(check=lambda m: m.author.id == user.id or m.author.id == ctx.user.id)
 
         embed = discord.Embed(title="User Verified", colour=GREEN)
         embed.set_footer(text=user.display_name, icon_url=user.display_avatar.url)
