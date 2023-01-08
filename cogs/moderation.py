@@ -2,8 +2,9 @@ import discord
 from db import db, use_counter
 import datetime as dt
 from utils import seconds_to_pretty
-from config import GUILD_ID, BAN_APPEAL_LINK, PING_PERM_ROLE
+from config import GUILD_ID, BAN_APPEAL_LINK, PING_PERM_ROLE, STAFF_COMMANDS_ID
 from asyncio import sleep
+from typing import Optional
 
 EMBED_FIELD_LIMIT = 25
 COLOUR = 0xff0000
@@ -13,18 +14,19 @@ TIER_EXPIRATION = dt.timedelta(days=90)  # 3 Months
 PING_PERM_MINUTES = 5
 
 
-def mod_case_embed(ctx: discord.ApplicationContext, case: dict) -> discord.Embed:
+def mod_case_embed(guild: discord.Guild, case: dict) -> discord.Embed:
     # TODO: Colour
     embed = discord.Embed(colour=COLOUR)
     embed.title = "Case #{} | {}:".format(case["case"], case["type"].title())
     embed.description = case["reason"]
 
-    member = ctx.guild.get_member(int(case["user"]))
+    member = guild.get_member(int(case["user"]))
     name = member.display_name if member else "User left guild"
     icon = member.display_avatar.url if member else discord.Embed.Empty
     embed.set_author(name=name, icon_url=icon)
 
-    embed.add_field(name="Moderator", value="<@{}>".format(case["mod"]))
+    if case["mod"]:
+        embed.add_field(name="Moderator", value="<@{}>".format(case["mod"]))
 
     if case["duration"]:
         embed.add_field(name="Duration", value=seconds_to_pretty(case["duration"]))
@@ -73,7 +75,7 @@ def can_moderate_user(ctx: discord.ApplicationContext, target_user: discord.Memb
         return True
 
 
-async def insert_modlog(user: discord.Member, mod: discord.Member, log_type: str, reason: str,
+async def insert_modlog(user: discord.Member, mod: Optional[discord.Member], log_type: str, reason: str,
                         duration: dt.timedelta = None):
     if duration:
         duration = duration.total_seconds()
@@ -84,7 +86,7 @@ async def insert_modlog(user: discord.Member, mod: discord.Member, log_type: str
     data = {
         "case": case_number,
         "user": str(user.id),
-        "mod": str(mod.id),
+        "mod": str(mod.id) if mod else None,
         "type": log_type,
         "duration": duration,
         "reason": reason,
@@ -125,7 +127,7 @@ class Moderation(discord.Cog):
             can_dm = False
 
         # Send confirmation
-        mod_embed = mod_case_embed(ctx, case)
+        mod_embed = mod_case_embed(ctx.guild, case)
 
         if not can_dm:
             mod_embed.set_footer(text="Cannot DM User")
@@ -139,7 +141,7 @@ class Moderation(discord.Cog):
         await ctx.defer()
         case = await insert_modlog(user, ctx.user, "note", note)
 
-        mod_embed = mod_case_embed(ctx, case)
+        mod_embed = mod_case_embed(ctx.guild, case)
         await ctx.respond(embed=mod_embed)
 
     @discord.slash_command(guild_ids=[GUILD_ID])
@@ -189,7 +191,7 @@ class Moderation(discord.Cog):
             can_dm = False
 
         # Send confirmation
-        mod_embed = mod_case_embed(ctx, case)
+        mod_embed = mod_case_embed(ctx.guild, case)
 
         if not can_dm:
             mod_embed.set_footer(text="Cannot DM User")
@@ -299,7 +301,7 @@ class Moderation(discord.Cog):
             can_dm = False
 
         # Generate embed here, so we can get the member object once the user has left
-        mod_embed = mod_case_embed(ctx, case)
+        mod_embed = mod_case_embed(ctx.guild, case)
 
         # Ban user
 
@@ -339,6 +341,21 @@ class Moderation(discord.Cog):
         if role not in old_member.roles and role in new_member.roles:
             await sleep(PING_PERM_MINUTES * 60)  # 5 minutes
             await new_member.remove_roles(role)
+
+    @discord.Cog.listener()
+    async def on_member_ban(self, guild: discord.Guild, member: discord.Member):
+        if guild.id != GUILD_ID:
+            return
+
+        ban = await guild.fetch_ban(member)
+        case = await insert_modlog(member, None, "ban", ban.reason)
+
+        channel = guild.get_channel(STAFF_COMMANDS_ID)
+        embed = mod_case_embed(guild, case)
+
+        embed.set_author(name=member.name, icon_url=member.display_avatar.url)  # <- This is stupid
+        embed.set_footer(text=f"User ID: {member.id}")
+        await channel.send("User manually banned", embed=embed)
 
 
 def setup(bot):

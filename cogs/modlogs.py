@@ -58,7 +58,9 @@ class Modlogs(discord.Cog):
                     description += "**Length:** {}\n".format(seconds_to_pretty(case["duration"]))
 
                 description += "**Date:** {}\n".format(discord.utils.format_dt(case["timestamp"], "F"))
-                description += "**Moderator:** <@{}>\n".format(case["mod"])
+
+                if case["mod"]:
+                    description += "**Moderator:** <@{}>\n".format(case["mod"])
 
                 embed.add_field(name=title, value=description, inline=False)
 
@@ -173,7 +175,7 @@ class Modlogs(discord.Cog):
             await ctx.respond("Case not found", ephemeral=True)
             return
 
-        embed = mod_case_embed(ctx, case)
+        embed = mod_case_embed(ctx.guild, case)
         await ctx.respond(embed=embed)
 
     @discord.slash_command(guild_ids=[GUILD_ID])
@@ -196,7 +198,7 @@ class Modlogs(discord.Cog):
         # Could use the case no. here by this is what _ids are for lol
         await db.mod_logs.delete_one({"_id": case["_id"]})
 
-        embed = mod_case_embed(ctx, case)
+        embed = mod_case_embed(ctx.guild, case)
         await ctx.respond(embed=embed)
 
 
