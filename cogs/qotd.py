@@ -69,6 +69,7 @@ class QOTD(discord.Cog):
         channel = self.bot.get_channel(QOTD_ID)
 
         qotd = await db.qotds.find_one_and_delete({})
+        remaining = await db.qotds.count_documents({})
 
         if not qotd:
             embed = discord.Embed(colour=COLOUR, title="There are no new questions in the queue",
@@ -84,7 +85,8 @@ class QOTD(discord.Cog):
 
         member = channel.guild.get_member(user_id)
         if member:
-            embed.set_footer(text="By " + member.display_name, icon_url=member.display_avatar.url)
+            embed.set_footer(text=f"By {member.display_name} | {remaining} questions in queue",
+                             icon_url=member.display_avatar.url)
 
         embed.timestamp = discord.utils.utcnow()
 
