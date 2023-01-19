@@ -101,6 +101,7 @@ async def insert_modlog(user: discord.Member, mod: Optional[discord.Member], log
 class Moderation(discord.Cog):
     def __init__(self, bot: discord.Bot):
         self.bot = bot
+        self.command_bans = []
 
     @discord.slash_command(guild_ids=[GUILD_ID])
     @discord.default_permissions(kick_members=True)
@@ -312,6 +313,9 @@ class Moderation(discord.Cog):
             await ctx.respond("Unable to ban user")
             return
 
+        # Ensure ban doesn't get logged as a manual ban
+        self.command_bans.append(user.id)
+
         # Send confirmation
 
         if not can_dm:
@@ -345,6 +349,10 @@ class Moderation(discord.Cog):
     @discord.Cog.listener()
     async def on_member_ban(self, guild: discord.Guild, member: discord.Member):
         if guild.id != GUILD_ID:
+            return
+
+        if member.id in self.command_bans:
+            self.command_bans.remove(member.id)
             return
 
         ban = await guild.fetch_ban(member)
